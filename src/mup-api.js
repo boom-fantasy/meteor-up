@@ -69,6 +69,10 @@ export default class MupAPI {
     api.sessions = this._pickSessions(modules);
     return api;
   }
+  done() {
+    process.exit(0);
+    //TODO: remove bundle to prevent filling up the disk
+  }
 
   _pickSessions(modules = []) {
     if (!this.sessions) {
@@ -110,7 +114,7 @@ export default class MupAPI {
 
       const info = config.servers[name];
       const auth = {username: info.username};
-      const opts = {ssh: {}};
+      const opts = {ssh: {},keepAlive:true};
 
       var sshAgent = process.env.SSH_AUTH_SOCK;
 

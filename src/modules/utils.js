@@ -5,7 +5,8 @@ import {Client} from 'ssh2';
 import path from 'path';
 
 export function runTaskList(list, sessions, opts) {
-  return new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
+    opts=_.extend(opts,{series:true}); //force series mode to stop disconnects
     list.run(sessions, opts, summaryMap => {
       for (var host in summaryMap) {
         const summary = summaryMap[host];
@@ -14,7 +15,6 @@ export function runTaskList(list, sessions, opts) {
           return;
         }
       }
-
       resolve();
     });
   });

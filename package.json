@@ -1,6 +1,6 @@
 {
-  "name": "mup",
-  "version": "1.0.3",
+  "name": "mup-parallel",
+  "version": "0.0.3",
   "description": "Production Quality Meteor Deployments",
   "main": "lib/index.js",
   "bin": {
@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kadirahq/meteor-up.git"
+    "url": "git+https://github.com/boomfantasy/meteor-up.git"
   },
   "keywords": [
     "meteor"
@@ -21,9 +21,9 @@
   "author": "Kadira Inc.",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/kadirahq/meteor-up/issues"
+    "url": "https://github.com/boomfantasy/meteor-up/issues"
   },
-  "homepage": "https://github.com/kadirahq/meteor-up#readme",
+  "homepage": "https://github.com/boomfantasy/meteor-up#readme",
   "devDependencies": {
     "nofat": "1.0.x",
     "ssh2": "0.4.x"
@@ -40,5 +40,8 @@
     "source-map-support": "0.4.0",
     "underscore": "1.x.x",
     "uuid": "2.x.x"
+  },
+  "directories": {
+    "test": "tests"
   }
 }
