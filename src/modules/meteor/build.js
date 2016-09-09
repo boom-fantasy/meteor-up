@@ -71,7 +71,7 @@ function buildMeteorApp(appPath, buildOptions, callback) {
     var meteor  = spawn(executable, args, options);
     var stdout  = "";
     var stderr  = "";
-
+    console.log('started build');
     meteor.stdout.pipe(process.stdout, {end: false});
     meteor.stderr.pipe(process.stderr, {end: false});
 
