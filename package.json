@@ -1,6 +1,6 @@
 {
   "name": "mup-parallel",
-  "version": "0.0.4",
+  "version": "0.0.6",
   "description": "Production Quality Meteor Deployments",
   "main": "lib/index.js",
   "bin": {

@@ -114,7 +114,7 @@ export default class MupAPI {
 
       const info = config.servers[name];
       const auth = {username: info.username};
-      const opts = {ssh: {},keepAlive:true};
+      const opts = {ssh: {}};
 
       var sshAgent = process.env.SSH_AUTH_SOCK;
 

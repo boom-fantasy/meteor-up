@@ -66,7 +66,7 @@ export function setup(api) {
     return runTaskList(list, sessions);
 }
 
-export function push(api) {
+export function push(api,session,force_redeploy) {
     log('exec => mup meteor push');
     const config = api.getConfig().meteor;
     if (!config) {
@@ -86,7 +86,7 @@ export function push(api) {
     var buildOptions = config.buildOptions || {};
     var args         = api.getArgs();
 
-    if (_.any(args, (a) => a&&(a.localeCompare('--redeploy')==0))) {
+    if (_.any(args, (a) => a&&(a.localeCompare('--redeploy')==0))||force_redeploy) {
         buildOptions.allow_reuse = true;
     }
 
@@ -99,6 +99,7 @@ export function push(api) {
 
     return buildApp(appPath, buildOptions)
         .then(() => {
+
             config.log = config.log || {
                     opts: {
                         'max-size'                    : '100m', 'max-file': 10
@@ -126,12 +127,12 @@ export function push(api) {
                 }
             });
 
-            const sessions = api.getSessions(['meteor']);
-            return runTaskList(list, sessions);
+             session = session||api.getSessions(['meteor']);
+            return runTaskList(list, session);
         });
 }
 
-export function envconfig(api) {
+export function envconfig(api,sessions) {
     log('exec => mup meteor envconfig');
     const config = api.getConfig().meteor;
     if (!config) {
@@ -155,11 +156,11 @@ export function envconfig(api) {
             env: env || {}, appName: config.name
         }
     });
-    const sessions = api.getSessions(['meteor']);
+    sessions = sessions||api.getSessions(['meteor']);
     return runTaskList(list, sessions);
 }
 
-export function start(api) {
+export function start(api,sessions) {
     log('exec => mup meteor start');
     const config = api.getConfig().meteor;
     if (!config) {
@@ -181,24 +182,34 @@ export function start(api) {
         }
     });
 
-    const sessions = api.getSessions(['meteor']);
+    sessions = sessions||api.getSessions(['meteor']);
     return runTaskList(list, sessions);
 }
 
-export function deploy(api) {
+export function deploy(api,sessions,force_redeploy) {
     log('exec => mup meteor deploy');
     const config = api.getConfig().meteor;
     if (!config) {
         console.error('error: no configs found for meteor');
         process.exit(1);
     }
-
-    return push(api)
-        .then(() => envconfig(api))
-        .then(() => start(api))
-        .then(()=> {
-            api.done()
-        });
+    if(force_redeploy && !sessions) {
+     return api.done();
+    }
+    else {
+        sessions = sessions || api.getSessions(['meteor']);
+        if (Array.isArray(sessions)) {
+            let session = sessions.shift();
+            console.log(session);
+            return deploy(api, session)
+                .then(()=>deploy(api, sessions, true));
+        }
+        else {
+            return push(api, sessions, force_redeploy)
+                .then(() => envconfig(api, sessions))
+                .then(() => start(api, sessions));
+        }
+    }
 }
 
 export function stop(api) {
@@ -218,5 +229,7 @@ export function stop(api) {
     });
 
     const sessions = api.getSessions(['meteor']);
-    return runTaskList(list, sessions);
+    return runTaskList(list, sessions)  .then(()=> {
+        api.done()
+    });
 }
