@@ -87,6 +87,7 @@ export function push(api,session,force_redeploy) {
     var args         = api.getArgs();
 
     if (_.any(args, (a) => a&&(a.localeCompare('--redeploy')==0))||force_redeploy) {
+
         buildOptions.allow_reuse = true;
     }
 
@@ -135,6 +136,22 @@ export function push(api,session,force_redeploy) {
 export function envconfig(api,sessions) {
     log('exec => mup meteor envconfig');
     const config = api.getConfig().meteor;
+    const servers = api.getConfig().servers;
+    let current_server = '';
+    try {
+        for (let s in servers) {
+
+            if (servers[s].host == sessions._host) {
+                current_server = s;
+                break;
+            }
+        }
+    }catch(ex){
+        console.log(ex)
+    }
+
+
+
     if (!config) {
         console.error('error: no configs found for meteor');
         process.exit(1);
@@ -143,6 +160,9 @@ export function envconfig(api,sessions) {
     const list = nodemiral.taskList('Configuring  Meteor Environment Variables');
 
     var env             = _.clone(config.env);
+    _.extend(env,config.servers[current_server]);
+
+
     env.METEOR_SETTINGS = JSON.stringify(api.getSettings());
     // sending PORT to the docker container is useless.
     // It'll run on PORT 80 and we can't override it
@@ -193,18 +213,19 @@ export function deploy(api,sessions,force_redeploy) {
         console.error('error: no configs found for meteor');
         process.exit(1);
     }
-    if(force_redeploy && !sessions) {
+    if(force_redeploy && (!sessions || sessions.length==0)) {
      return api.done();
     }
     else {
         sessions = sessions || api.getSessions(['meteor']);
         if (Array.isArray(sessions)) {
             let session = sessions.shift();
-            console.log(session);
-            return deploy(api, session)
-                .then(()=>deploy(api, sessions, true));
+
+            return deploy(api, session,force_redeploy)
+                .then(()=>{deploy(api, sessions, true)});
         }
         else {
+
             return push(api, sessions, force_redeploy)
                 .then(() => envconfig(api, sessions))
                 .then(() => start(api, sessions));
