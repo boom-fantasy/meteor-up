@@ -35,7 +35,7 @@ docker run \
 <% if(typeof sslConfig === "object")  { %>
   # We don't need to fail the deployment because of a docker hub downtime
   set +e
-  docker pull meteorhacks/mup-frontend-server:latest
+  docker pull boomfantasy/boom-meteor-front-end:latest
   set -e
   docker run \
     -d \
